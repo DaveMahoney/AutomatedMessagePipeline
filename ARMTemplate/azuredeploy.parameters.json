@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {"value": "my-automated-messaging"},
+    "messageSendTimeUTC": {"value": "12:00"},
+    "sendGridApiKey": {"value": "your-sendgrid-key"},
+    "logoUrl": {"value": "https://yourdomain.com/logo.png"}
+  }
+}
