@@ -2,10 +2,32 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "projectName": {"type": "string"},
-    "messageSendTimeUTC": {"type": "string"},
-    "sendGridApiKey": {"type": "securestring"},
-    "logoUrl": {"type": "string"}
+    "projectName": {
+      "type": "string",
+      "metadata": {
+        "description": "A unique name for your Function App and related resources (e.g., 'my-message-service')."
+      }
+    },
+    "messageSendTimeUTC": {
+      "type": "string",
+      "defaultValue": "12:00",
+      "metadata": {
+        "description": "Daily send time in 24-hour UTC format (e.g., '13:00' for 1PM UTC)."
+      }
+    },
+    "sendGridApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Your SendGrid API key used to send emails securely."
+      }
+    },
+    "logoUrl": {
+      "type": "string",
+      "defaultValue": "https://yourdomain.com/logo.png",
+      "metadata": {
+        "description": "URL to your logo image that will appear in the email header."
+      }
+    }
   },
   "resources": [],
   "outputs": {}

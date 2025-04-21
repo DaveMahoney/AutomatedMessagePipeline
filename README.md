@@ -1,47 +1,34 @@
 # Automated Message Pipeline
 
-This project bootstraps a fully functional Azure Function App for sending automated messages, such as newsletters, digests, alerts, or summaries.
+This project deploys a serverless Azure Function App and staging environment for sending automated messages — newsletters, alerts, summaries, and more — on a recurring schedule.
 
 ## 🚀 One-Click Deployment
 
-Click the button below to deploy your own copy of this project to Azure:
+Click below to deploy the full environment to your Azure subscription:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDaveMahoney%2FAutomatedMessagePipeline%2Fmain%2FARMTemplate%2Fazuredeploy.json)
 
+### 📝 During deployment, you'll be asked for:
+- **Project Name**: Used to name the Function App and resources.
+- **Send Time**: Daily send time (24-hour UTC format like `13:00`).
+- **SendGrid API Key**: Required to send outgoing emails.
+- **Logo URL**: Optional image to brand your email content.
+
 ## 📦 What Gets Deployed
 
-- Azure Function App (Python)
-- Timer-triggered automation
-- Staging deployment slot
-- SendGrid-compatible message sender
-- CI/CD GitHub Actions workflow
+- Azure Function App with Python runtime
+- Timer trigger for daily automation
+- Staging deployment slot for safe updates
+- GitHub Actions CI/CD linked to this repo
+- Application Settings for schedule, API key, and logo
 
-## 🛠️ Required Setup After Deployment
+## 🔧 Customizing Your Function
 
-1. Navigate to the deployed **Function App** in Azure.
-2. Add the following **Application Settings** under Configuration:
-   - `SENDGRID_API_KEY` = _your SendGrid API key_
-3. Customize the function code or schedule from GitHub or Azure.
-4. Optional: Hook into OpenAI, RSS feeds, or custom content.
-
-## 📂 Folder Structure
-
-```text
-.
-├── ARMTemplate/
-│   ├── azuredeploy.json
-│   └── azuredeploy.parameters.json
-├── .github/workflows/
-│   ├── deploy.yml
-│   └── deploy-staging.yml
-├── function/
-│   ├── __init__.py
-│   ├── function.json
-│   ├── host.json
-│   └── requirements.txt
-└── README.md
-```
+Once deployed:
+- Open `/function/AutomatedMessageTrigger/__init__.py`
+- Add your content logic, news fetching, or OpenAI summarization
+- Commit changes to `main` or `staging` branches to auto-deploy
 
 ---
 
-© Dave Mahoney • Reuse welcome with credit
+© Dave Mahoney • MIT License
