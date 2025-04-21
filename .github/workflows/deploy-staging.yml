@@ -8,11 +8,21 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: azure/functions-action@v1
-        with:
-          app-name: ${{ secrets.FUNCTION_APP_NAME }}
-          slot-name: staging
-          package: './function'
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+    - name: Check for required secret
+      if: ${{ !secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      run: |
+        echo "AZURE_FUNCTIONAPP_PUBLISH_PROFILE secret not found. Skipping staging deployment."
+        exit 0
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to Azure Function App (Staging)
+      uses: azure/functions-action@v1
+      with:
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+        slot-name: staging
+        package: './function'
