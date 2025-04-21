@@ -5,14 +5,20 @@
     "projectName": {
       "type": "string",
       "metadata": {
-        "description": "Base name for all resources (e.g. 'myproject')"
+        "description": "Unique name for the Function App and related resources"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account name (3-24 lowercase letters and numbers only)"
       }
     },
     "messageSendTimeUTC": {
       "type": "string",
       "defaultValue": "12:00",
       "metadata": {
-        "description": "Daily send time in 24-hour UTC format (e.g. '13:00')"
+        "description": "Daily send time in 24-hour UTC format (e.g., '13:00')"
       }
     },
     "sendGridApiKey": {
@@ -25,22 +31,16 @@
       "type": "string",
       "defaultValue": "https://yourdomain.com/logo.png",
       "metadata": {
-        "description": "Logo URL for email branding"
+        "description": "Logo URL for email header branding"
       }
     }
-  },
-  "variables": {
-    "storageAccountName": "[toLower(concat(substring(replace(parameters('projectName'), '-', ''), 0, 16), utcNow('MMdd')))]",
-    "hostingPlanName": "[concat(parameters('projectName'), '-plan')]",
-    "functionAppName": "[parameters('projectName')]",
-    "location": "[resourceGroup().location]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "[variables('storageAccountName')]",
-      "location": "[variables('location')]",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "Standard_LRS"
       },
@@ -50,45 +50,42 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2022-03-01",
-      "name": "[variables('hostingPlanName')]",
-      "location": "[variables('location')]",
-      "kind": "functionapp",
+      "name": "[concat(parameters('projectName'), '-plan')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "Y1",
         "tier": "Dynamic"
       },
       "properties": {
+        "maximumElasticWorkerCount": 1,
         "perSiteScaling": false,
-        "reserved": true,
-        "maximumElasticWorkerCount": 1
+        "reserved": true
       }
     },
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-03-01",
-      "name": "[variables('functionAppName')]",
-      "location": "[variables('location')]",
+      "name": "[parameters('projectName')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        "[concat('Microsoft.Web/serverfarms/', parameters('projectName'), '-plan')]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
       ],
-      "kind": "functionapp,linux",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(parameters('projectName'), '-plan'))]",
         "siteConfig": {
-          "linuxFxVersion": "Python|3.9",
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=REPLACEME==;EndpointSuffix=core.windows.net')]"
-            },
-            {
-              "name": "FUNCTIONS_WORKER_RUNTIME",
-              "value": "python"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=FAKEKEY==;EndpointSuffix=core.windows.net')]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
               "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "python"
             },
             {
               "name": "SENDGRID_API_KEY",
@@ -109,10 +106,10 @@
     {
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2022-03-01",
-      "name": "[concat(variables('functionAppName'), '/staging')]",
-      "location": "[variables('location')]",
+      "name": "[concat(parameters('projectName'), '/staging')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+        "[resourceId('Microsoft.Web/sites', parameters('projectName'))]"
       ],
       "properties": {
         "siteConfig": {
@@ -126,14 +123,5 @@
       }
     }
   ],
-  "outputs": {
-    "functionAppName": {
-      "type": "string",
-      "value": "[variables('functionAppName')]"
-    },
-    "storageAccountName": {
-      "type": "string",
-      "value": "[variables('storageAccountName')]"
-    }
-  }
+  "outputs": {}
 }
