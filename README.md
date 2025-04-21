@@ -1,45 +1,47 @@
 # Automated Message Pipeline
 
-This repository provides a complete Azure-based solution for deploying an automated, scheduled message distribution pipeline using Azure Functions and GitHub Actions.
+This project bootstraps a fully functional Azure Function App for sending automated messages, such as newsletters, digests, alerts, or summaries.
 
-## 🚀 Deploy to Azure
+## 🚀 One-Click Deployment
 
-Click the button below to launch the entire infrastructure in your Azure subscription. You’ll be prompted to input:
-
-- A project name
-- Message schedule time (24-hour UTC format)
-- SendGrid API key (securely stored)
-- Logo URL for email formatting
+Click the button below to deploy your own copy of this project to Azure:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDaveMahoney%2FAutomatedMessagePipeline%2Fmain%2FARMTemplate%2Fazuredeploy.json)
 
-## 📁 Folder Structure
+## 📦 What Gets Deployed
 
-```
-AutomatedMessagePipeline/
-├── function/
-│   ├── AutomatedMessageTrigger/
-│   │   ├── __init__.py
-│   │   └── function.json
-│   ├── host.json
-│   └── requirements.txt
+- Azure Function App (Python)
+- Timer-triggered automation
+- Staging deployment slot
+- SendGrid-compatible message sender
+- CI/CD GitHub Actions workflow
+
+## 🛠️ Required Setup After Deployment
+
+1. Navigate to the deployed **Function App** in Azure.
+2. Add the following **Application Settings** under Configuration:
+   - `SENDGRID_API_KEY` = _your SendGrid API key_
+3. Customize the function code or schedule from GitHub or Azure.
+4. Optional: Hook into OpenAI, RSS feeds, or custom content.
+
+## 📂 Folder Structure
+
+```text
+.
 ├── ARMTemplate/
 │   ├── azuredeploy.json
 │   └── azuredeploy.parameters.json
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml
-│       └── deploy-staging.yml
+├── .github/workflows/
+│   ├── deploy.yml
+│   └── deploy-staging.yml
+├── function/
+│   ├── __init__.py
+│   ├── function.json
+│   ├── host.json
+│   └── requirements.txt
 └── README.md
 ```
 
-## 🧪 Customize After Deployment
+---
 
-Once deployed, you can:
-
-- Modify email format in `__init__.py`
-- Change news or data sources
-- Add OpenAI summarization logic
-- Extend integration with other APIs
-
-Enjoy your automated message pipeline.
+© Dave Mahoney • Reuse welcome with credit
