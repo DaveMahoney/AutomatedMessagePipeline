@@ -33,7 +33,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "[concat(parameters('projectName'), 'storage')]",
+      "name": "[toLower(concat(substring(replace([parameters('projectName')], '-', ''), 0, 20), utcNow('MMDD')))]",
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "Standard_LRS"
@@ -63,7 +63,7 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', parameters('projectName'), '-plan')]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('projectName'), 'storage')]"
+        "[concat('Microsoft.Storage/storageAccounts/', [toLower(concat(substring(replace([parameters('projectName')], '-', ''), 0, 16), utcNow('MMDD')))])]"
       ],
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(parameters('projectName'), '-plan'))]",
@@ -71,7 +71,7 @@
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('projectName'), 'storage;AccountKey=FAKEKEY==;EndpointSuffix=core.windows.net')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', [toLower(concat(substring(replace([parameters('projectName')], '-', ''), 0, 16), utcNow('MMDD')))], ';AccountKey=FAKEKEY==;EndpointSuffix=core.windows.net')]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
