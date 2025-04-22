@@ -25,12 +25,9 @@ Give it a name like `my-daily-updates`, and choose **Private** if you prefer.
 
 Once you’ve created your own copy:
 
-1. Go to your new repo
-2. Click this badge to launch Azure Cloud Shell in your browser:
-
-[![Launch in Azure Cloud Shell](https://shell.azure.com/images/launchcloudshell.svg)](https://shell.azure.com)
-
-3. In the Cloud Shell terminal, run:
+1. Go to your new repo.
+2. Open **[Azure Cloud Shell](https://shell.azure.com)** in your browser.
+3. In the terminal, run the following to clone your repo and start deployment:
 ```bash
 curl -O https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-NEW-REPO/main/scripts/deploy.sh
 bash deploy.sh
