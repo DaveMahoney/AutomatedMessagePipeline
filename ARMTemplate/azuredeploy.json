@@ -5,14 +5,16 @@
     "projectName": {
       "type": "string",
       "metadata": {
-        "description": "Unique name for the Function App and related resources"
+        "description": "Unique name for the Function App and resources (e.g., my-message-project)"
       }
     },
     "storageAccountName": {
       "type": "string",
       "metadata": {
         "description": "Storage account name (3-24 lowercase letters and numbers only)"
-      }
+      },
+      "minLength": 3,
+      "maxLength": 24
     },
     "messageSendTimeUTC": {
       "type": "string",
@@ -31,7 +33,7 @@
       "type": "string",
       "defaultValue": "https://yourdomain.com/logo.png",
       "metadata": {
-        "description": "Logo URL for email header branding"
+        "description": "Logo URL to display in email header"
       }
     }
   },
@@ -54,8 +56,12 @@
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "Y1",
-        "tier": "Dynamic"
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
       },
+      "kind": "functionapp",
       "properties": {
         "maximumElasticWorkerCount": 1,
         "perSiteScaling": false,
@@ -63,29 +69,43 @@
       }
     },
     {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[concat(parameters('projectName'), '-ai')]",
+      "location": "[resourceGroup().location]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "RetentionInDays": 90
+      }
+    },
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-03-01",
       "name": "[parameters('projectName')]",
       "location": "[resourceGroup().location]",
+      "kind": "functionapp,linux",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', parameters('projectName'), '-plan')]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', concat(parameters('projectName'), '-plan'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.Insights/components', concat(parameters('projectName'), '-ai'))]"
       ],
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(parameters('projectName'), '-plan'))]",
         "siteConfig": {
+          "linuxFxVersion": "Python|3.9",
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=FAKEKEY==;EndpointSuffix=core.windows.net')]"
             },
             {
-              "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~4"
-            },
-            {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "python"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
             },
             {
               "name": "SENDGRID_API_KEY",
@@ -98,6 +118,10 @@
             {
               "name": "SCHEDULE_TIME_UTC",
               "value": "[parameters('messageSendTimeUTC')]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', concat(parameters('projectName'), '-ai')), '2020-02-02').InstrumentationKey]"
             }
           ]
         }
