@@ -14,8 +14,11 @@ suffix=$((RANDOM % 9000 + 1000))
 
 # Prepare resource names
 resourceGroup="${projectName}-rg-${suffix}"
-storageAccount="${projectName//-/}"  # remove dashes
-storageAccount="${storageAccount:0:16}${suffix}"
+
+# Sanitize: lowercase, remove invalid chars, truncate to fit max length (24 chars with suffix)
+sanitizedName=$(echo "$projectName" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9')
+storageAccount="${sanitizedName:0:20}${suffix}"
+
 functionApp="${projectName}-func-${suffix}"
 appInsights="${functionApp}"
 
