@@ -8,11 +8,17 @@ read -p "Enter your desired Azure region (e.g., eastus, westus2): " location
 read -p "Enter your SendGrid API Key: " sendgrid_key
 read -p "Enter your logo file name (in branding/ folder, e.g., logo.png): " logo_filename
 
-# Create identifiers
-let "rand=$RANDOM*$RANDOM"
-resourceGroup="${project}-rg-${rand}"
-storage="${project}sa${rand}"
-functionApp="${project}-func-${rand}"
+# Generate random suffix
+rand=$(shuf -i 1000-9999 -n 1)
+
+# Sanitize and trim project name to ensure valid storage account name
+cleanProject=$(echo "$project" | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')
+storageBase=${cleanProject:0:16}  # Limit to 16 characters max
+storage="${storageBase}${rand}"  # Final name: base + 4-digit suffix = max 20 chars
+
+# Resource identifiers
+resourceGroup="${cleanProject}-rg-${rand}"
+functionApp="${cleanProject}-func-${rand}"
 sku="Standard_LRS"
 functionsVersion="4"
 pythonVersion="3.9"
@@ -30,7 +36,7 @@ connection_string=$(az storage account show-connection-string --name $storage --
 echo "🌐 Enabling static website hosting"
 az storage blob service-properties update --account-name $storage --static-website --404-document 404.html --index-document index.html
 
-# Upload logo if it exists locally (cloned repo, branding folder)
+# Upload logo if found
 if [[ -f "branding/${logo_filename}" ]]; then
     echo "🖼️ Uploading logo to blob storage..."
     az storage blob upload --account-name $storage --container-name "\$web" --name $logo_filename --file "branding/${logo_filename}" --connection-string "$connection_string"
