@@ -6,6 +6,8 @@ echo "🔧 Starting Automated Message Function App Deployment..."
 read -p "Enter your project name (lowercase, no spaces): " projectName
 read -p "Enter your desired Azure region (e.g., eastus, westus2): " location
 read -p "Enter your SendGrid API Key: " sendGridApiKey
+read -p "Enter your GitHub repo URL (e.g., https://github.com/username/repo): " gitRepo
+read -p "Enter the GitHub branch to deploy from (e.g., main): " gitBranch
 
 # Generate a unique suffix
 suffix=$((RANDOM % 9000 + 1000))
@@ -27,14 +29,7 @@ az storage account create --name "$storageAccount" --location "$location" --reso
 
 # Create function app with consumption plan
 echo "🚀 Creating Function App: $functionApp"
-az functionapp create --name "$functionApp" \
-  --storage-account "$storageAccount" \
-  --consumption-plan-location "$location" \
-  --resource-group "$resourceGroup" \
-  --os-type Linux \
-  --runtime python \
-  --runtime-version 3.9 \
-  --functions-version 4
+az functionapp create --name "$functionApp"   --storage-account "$storageAccount"   --consumption-plan-location "$location"   --resource-group "$resourceGroup"   --os-type Linux   --runtime python   --runtime-version 3.9   --functions-version 4
 
 # Wait for Function App to be ready
 echo "⏳ Waiting for Function App to become available..."
@@ -48,15 +43,11 @@ done
 
 # Configure app settings
 echo "⚙️ Configuring application settings"
-az functionapp config appsettings set --name "$functionApp" --resource-group "$resourceGroup" --settings \
-  FUNCTIONS_WORKER_RUNTIME=python \
-  FUNCTIONS_EXTENSION_VERSION=~4 \
-  SENDGRID_API_KEY="$sendGridApiKey" \
-  SCHEDULE_TIME_UTC="12:00"
+az functionapp config appsettings set --name "$functionApp" --resource-group "$resourceGroup" --settings   FUNCTIONS_WORKER_RUNTIME=python   FUNCTIONS_EXTENSION_VERSION=~4   SENDGRID_API_KEY="$sendGridApiKey"   SCHEDULE_TIME_UTC="12:00"
 
-# Create staging deployment slot
-echo "🔁 Creating staging deployment slot"
-az functionapp deployment slot create --name "$functionApp" --resource-group "$resourceGroup" --slot staging
+# Deploy from GitHub
+echo "🔁 Linking Function App to GitHub repo: $gitRepo (branch: $gitBranch)"
+az functionapp deployment source config --name "$functionApp" --resource-group "$resourceGroup"   --repo-url "$gitRepo" --branch "$gitBranch" --manual-integration
 
 # Final message
 echo "✅ Deployment complete!"
